@@ -1,0 +1,47 @@
+# ────────── Python ──────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+
+# ────────── Entornos virtuales ──────────
+env/
+venv/
+.venv/
+.ipynb_checkpoints/
+
+# ────────── Archivos sensibles ──────────
+.env
+.env.*
+
+# ────────── Editor / OS ──────────
+.DS_Store
+.vscode/
+.idea/
+
+# ────────── FastAPI / Uvicorn ──────────
+app.log
+
+# ────────── LangChain / Chroma ──────────
+chroma_db/
+*.vectordb/
+*.db
+
+# ────────── Streamlit ──────────
+.streamlit/config.toml
+.streamlit/*.json
+.streamlit/*.py
+
+# ────────── Archivos temporales ──────────
+*.tmp
+*.bak
+*.swp
+*.old
+*.out
+temp_*
+
+# ────────── Jupyter (por si usas) ──────────
+*.ipynb

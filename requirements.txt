@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+streamlit
+requests
+
+langchain
+langchain-core
+langchain_community
+docx2txt
+pypdf
+langchain_chroma
+python-multipart
