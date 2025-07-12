@@ -8,6 +8,9 @@ from langchain_core.documents import Document
 import os
 from .chroma_utils import vectorstore
 
+from dotenv import load_dotenv
+load_dotenv()
+
 
 retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
 
@@ -41,7 +44,7 @@ qa_prompt = ChatPromptTemplate.from_messages([
 ])
 
 def get_rag_chain(model="gpt-4o-mini"):
-    llm = ChatOpenAI(model=model)
+    llm = ChatOpenAI(model=model, api_key=os.getenv("OPENAI_API_KEY"))
     history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
     question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
     rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)    

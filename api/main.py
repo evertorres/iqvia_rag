@@ -8,6 +8,8 @@ import uuid
 import logging
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+load_dotenv()
 
 # Set up logging
 logging.basicConfig(filename='app.log', level=logging.INFO)
