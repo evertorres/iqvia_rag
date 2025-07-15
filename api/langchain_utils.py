@@ -35,7 +35,7 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
 ])
 
 qa_prompt = ChatPromptTemplate.from_messages([
-    ("system", "Eres un asistente de inteligencia artificial útil y preciso. Usa el siguiente contexto para responder la pregunta del usuario."),
+    ("system", "Eres un asistente de inteligencia artificial útil y preciso. Usa exclusivamente el siguiente contexto para responder la pregunta del usuario. En caso que el contexto no permita responder la pregunta indicar que No puedo responder la pregunta con el contexto dado"),
     ("system", "Contexto: {context}"),
     MessagesPlaceholder(variable_name="chat_history"),
     ("human", "{input}")
@@ -51,7 +51,7 @@ def build_plain_prompt_with_history(context: str, question: str, chat_history: l
             history_str += f"<|assistant|>\n{msg['content']}\n"
 
     return (
-        f"<|system|>\nEres un asistente útil y preciso. Usa el contexto para responder la pregunta.\n"
+        f"<|system|>\nEres un asistente útil y preciso. Usa el contexto para responder la pregunta. Usa exclusivamente el siguiente contexto para responder la pregunta del usuario. En caso que el contexto no permita responder la pregunta indicar que No puedo responder la pregunta con el contexto dado\n"
         f"<|context|>\n{context}\n"
         f"{history_str}"
         f"<|user|>\n{question}\n"

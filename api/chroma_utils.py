@@ -1,4 +1,4 @@
-from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredHTMLLoader, UnstructuredExcelLoader
+from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredHTMLLoader, UnstructuredExcelLoader, CSVLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from typing import List
@@ -28,6 +28,8 @@ def load_and_split_document(file_path: str) -> List[Document]:
         loader = Docx2txtLoader(file_path)
     elif file_path.endswith('.xlsx'):
         loader = UnstructuredExcelLoader(file_path)
+    elif file_path.endswith('.csv'):
+        loader = CSVLoader(file_path)
     else:
         raise ValueError(f"Unsupported file type: {file_path}")
     
