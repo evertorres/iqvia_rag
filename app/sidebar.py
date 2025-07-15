@@ -27,8 +27,8 @@ def display_sidebar():
     )
 
     selected_model_id = model_options[selected_label]
-    st.session_state["selected_model_id"] = selected_model_id
-
+    st.session_state["selected_model_id"] = selected_model_id.lower()
+    print('Modelo', st.session_state["model"])
 
     # Sidebar: Upload Document
     st.sidebar.header("Upload Document")

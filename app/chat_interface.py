@@ -13,7 +13,7 @@ def display_chat_interface():
             st.markdown(prompt)
 
         with st.spinner("Generating response..."):
-            response = get_api_response(prompt, st.session_state.session_id, st.session_state.model)
+            response = get_api_response(prompt, st.session_state.session_id, st.session_state.selected_model_id)
             
             if response:
                 st.session_state.session_id = response.get('session_id')

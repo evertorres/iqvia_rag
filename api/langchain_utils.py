@@ -3,12 +3,15 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from typing import List
 from langchain_core.documents import Document
+from langchain_community.llms import HuggingFacePipeline
+
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+import torch
 import os
 from .chroma_utils import vectorstore
-
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -33,8 +36,6 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
     ("human", "{input}"),
 ])
 
-
-
 qa_prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful AI assistant. Use the following context to answer the user's question."),
     ("system", "Context: {context}"),
@@ -42,9 +43,34 @@ qa_prompt = ChatPromptTemplate.from_messages([
     ("human", "{input}")
 ])
 
+def load_phi4_llm(model_name="microsoft/Phi-4-mini-instruct"):
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float16 if device == "cuda" else torch.float32
+    )
+    hf_pipeline = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        device=0 if device == "cuda" else -1,
+        max_new_tokens=512,
+        temperature=0.7,
+        do_sample=True
+    )
+    return HuggingFacePipeline(pipeline=hf_pipeline)
+
 def get_rag_chain(model="gpt-4o-mini"):
-    llm = ChatOpenAI(model=model, api_key=os.getenv("OPENAI_API_KEY"))
+    
+    if model in ["local", "phi4", "phi-4", "microsoft/Phi-4-mini-instruct"]:
+        llm = load_phi4_llm()
+    else:
+        llm = ChatOpenAI(model=model, api_key=os.getenv("OPENAI_API_KEY"))
+
+    
     history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
     question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
-    rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)    
+    rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+
     return rag_chain
