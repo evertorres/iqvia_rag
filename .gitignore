@@ -42,6 +42,3 @@ chroma_db/
 *.old
 *.out
 temp_*
-
-# ────────── Jupyter (por si usas) ──────────
-*.ipynb
