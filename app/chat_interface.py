@@ -29,5 +29,12 @@ def display_chat_interface():
                         st.code(response['model'])
                         st.subheader("Session ID")
                         st.code(response['session_id'])
+
+                        if response.get("context"):
+                            st.subheader("Context:")
+                            for i, ctx in enumerate(response['context']):
+                                st.markdown(f"**Fragmento {i+1}:**")
+                                st.info(ctx)
+
             else:
                 st.error("Failed to get a response from the API. Please try again.")

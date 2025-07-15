@@ -31,9 +31,9 @@ app.add_middleware(
 def read_root():
     return {"message": "API funcionando"}
 
-### Chat
+### Ask
 
-@app.post("/chat", response_model=QueryResponse)
+@app.post("/ask", response_model=QueryResponse)
 def chat(query_input: QueryInput):
     session_id = query_input.session_id
     logging.info(f"Session ID: {session_id}, User Query: {query_input.question}, Model: {query_input.model.value}")
@@ -41,17 +41,26 @@ def chat(query_input: QueryInput):
         session_id = str(uuid.uuid4())
 
     
-
     chat_history = get_chat_history(session_id)
     rag_chain = get_rag_chain(query_input.model.value)
-    answer = rag_chain.invoke({
-        "input": query_input.question,
-        "chat_history": chat_history
-    })['answer']
+    
+    result = rag_chain.invoke({
+                                    "input": query_input.question,
+                                    "chat_history": chat_history
+                              })
+
+    answer = result['answer']
+    documents = result.get('context', [])
+    context_texts = [doc.page_content for doc in documents]
     
     insert_application_logs(session_id, query_input.question, answer, query_input.model.value)
     logging.info(f"Session ID: {session_id}, AI Response: {answer}")
-    return QueryResponse(answer=answer, session_id=session_id, model=query_input.model)
+    
+    return QueryResponse(
+            answer=answer,
+            session_id=session_id,
+            model=query_input.model,
+            context=context_texts)
 
 
 #### POST UPLOAD FILE ####

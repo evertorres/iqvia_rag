@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from enum import Enum
 from datetime import datetime
+from typing import List, Optional
 
 class ModelName(str, Enum):
     GPT4_O = "gpt-4o"
@@ -15,6 +16,7 @@ class QueryResponse(BaseModel):
     answer: str
     session_id: str
     model: ModelName
+    context: Optional[List[str]] = None
 
 class DocumentInfo(BaseModel):
     id: int
