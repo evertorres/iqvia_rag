@@ -62,6 +62,21 @@ uvicorn api.main:app --reload
 streamlit run app/app_front.py
 ```
 
+## 🔌 Endpoints del backend (FastAPI)
+
+- `POST /ask`: Recibe una pregunta, modelo a utilizar y el ID de sesión. Devuelve la respuesta generada y contexto.
+- `POST /upload`: Permite subir un documento y almacenarlo en la base vectorial.
+- `GET /list-docs`: Lista los documentos previamente cargados.
+- `POST /delete-docs`: Elimina un documento de la base.
+- `POST /login`: Verifica las credenciales del usuario (si está habilitado).
+
+Todos los endpoints devuelven datos en formato JSON.
+
+Los usuarios Dummy que se crean son:
+- username: admin, password: 1234
+- username: user1, password: abcd
+
+
 ## 🔐 Requisitos del modelo local (Phi-4 Mini)
 
 - RAM: → mínimo 8GB (ideal 16GB)
