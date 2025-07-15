@@ -13,7 +13,7 @@ def display_sidebar():
 
     # Sidebar: Model Selection based on type
     if model_type == "Local":
-        model_options = {"Phi-4 Mini (Microsoft)": "microsoft/Phi-4-mini-instruct"}
+        model_options = {"Phi-4 Mini (Microsoft)": "local"}
     else:
         model_options = {
             "GPT-4o": "gpt-4o",
@@ -23,10 +23,21 @@ def display_sidebar():
     selected_label = st.sidebar.selectbox(
         "Select Model",
         options=list(model_options.keys()),
-        key="model"  # No se sobrescribe en session_state
+        key="model" 
     )
 
     selected_model_id = model_options[selected_label]
+
+    if selected_model_id == "local":
+        st.warning(
+            "El modelo local Phi-4 Mini requiere al menos:\n\n"
+            "- 8 GB de RAM física (idealmente 16 GB)\n"
+            "- 6+ GB de memoria GPU (NVIDIA)\n"
+            "- PyTorch y Transformers instalados correctamente\n\n"
+            "Si no se cumplen estos requisitos, el modelo puede ejecutarse lentamente o fallar.",
+            icon="⚠️"
+        )
+
     st.session_state["selected_model_id"] = selected_model_id.lower()
     print('Modelo', st.session_state["model"])
 
