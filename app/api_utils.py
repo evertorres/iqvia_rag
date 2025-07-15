@@ -28,7 +28,7 @@ def upload_document(file):
     print("Uploading file...")
     try:
         files = {"file": (file.name, file, file.type)}
-        response = requests.post("http://localhost:8000/uploadfile", files=files)
+        response = requests.post("http://localhost:8000/upload", files=files)
         if response.status_code == 200:
             return response.json()
         else:

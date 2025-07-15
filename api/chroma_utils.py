@@ -5,12 +5,13 @@ from typing import List
 from langchain_core.documents import Document
 import os
 from langchain_huggingface import HuggingFaceEmbeddings
+import torch
 
-
+device = "cuda" if torch.cuda.is_available() else "cpu"
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200, length_function=len)
 
-model_name = "sentence-transformers/all-mpnet-base-v2"
-model_kwargs = {'device': 'cpu'}
+model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+model_kwargs = {'device': device}
 encode_kwargs = {'normalize_embeddings': False}
 embedding_function = HuggingFaceEmbeddings(
     model_name=model_name,

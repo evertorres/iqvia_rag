@@ -68,9 +68,9 @@ def chat(query_input: QueryInput):
 
 #### POST UPLOAD FILE ####
 
-@app.post("/uploadfile")
+@app.post("/upload")
 def upload_and_index_document(file: UploadFile = File(...)):
-    allowed_extensions = ['.pdf', '.csv', '.xlsx']
+    allowed_extensions = ['.csv', '.xlsx']
     file_extension = os.path.splitext(file.filename)[1].lower()
     print(file_extension)
 
