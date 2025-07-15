@@ -18,7 +18,6 @@ output_parser = StrOutputParser()
 
 
 
-
 # Set up prompts and chains
 contextualize_q_system_prompt = (
     "Given a chat history and the latest user question "

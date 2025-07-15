@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+import hashlib
 
 DB_NAME = "rag_app.db"
 
@@ -71,6 +72,56 @@ def get_all_documents():
     conn.close()
     return [dict(doc) for doc in documents]
 
+def create_usertable():
+    conn = get_db_connection()
+    conn.execute('''CREATE TABLE IF NOT EXISTS users
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                     username TEXT,
+                     password TEXT,
+                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.close()
+
+def get_user_by_username(username):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    conn.execute(f'''
+                    SELECT id, username, password
+                    FROM users 
+                    WHERE username = {username}
+
+                    ''')
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def insert_dummy_users():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT COUNT(*) FROM users")
+    count = cursor.fetchone()[0]
+
+    if count == 0:
+        dummy_users = [
+            ("admin", hash_password("1234")),
+            ("user1", hash_password("abcd"))
+        ]
+        cursor.executemany("INSERT INTO users (username, password) VALUES (?, ?)", dummy_users)
+        conn.commit()
+        print("Dummy users inserted")
+    else:
+        print("Nothing to insert")
+    
+    conn.close()
+
+
 # Initialize the database tables
 create_application_logs()
 create_document_store()
+
+create_usertable()
+insert_dummy_users()
