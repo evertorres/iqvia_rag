@@ -9,6 +9,9 @@ import logging
 import shutil
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from fastapi import Form
+from .db_utils import get_user_by_username, hash_password
+
 load_dotenv()
 
 # Set up logging
@@ -111,3 +114,12 @@ def delete_document(request: DeleteFileRequest):
             return {"error": f"Deleted from Chroma but failed to delete document with file_id {request.file_id} from the database."}
     else:
         return {"error": f"Failed to delete document with file_id {request.file_id} from Chroma."}
+    
+
+@app.post("/login")
+def login_user(username: str = Form(...), password: str = Form(...)):
+    user = get_user_by_username(username)
+    if user:
+        if user["password"] == hash_password(password):
+            return {"authenticated": True}
+        return {"authenticated": False}

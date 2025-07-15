@@ -6,7 +6,7 @@ from chat_interface import display_chat_interface
 #Llamar al login
 login()
 
-st.title(f"IQVIA Test {st.session_state['username']}")
+st.title(f"IQVIA Test - User: {st.session_state['username']}")
 
 # Initialize session state variables
 if "messages" not in st.session_state:

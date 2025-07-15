@@ -67,3 +67,16 @@ def delete_document(file_id):
     except Exception as e:
         st.error(f"An error occurred while deleting the document: {str(e)}")
         return None
+    
+def login_user_api(username, password):
+    try:
+        data = {"username": username, "password": password}
+        response = requests.post("http://localhost:8000/login", data=data)
+        if response.status_code == 200:
+            return response.json().get("authenticated", False)
+        else:
+            st.error(f"Login failed. Status: {response.status_code}")
+            return False
+    except Exception as e:
+        st.error(f"Login error: {str(e)}")
+        return False

@@ -84,15 +84,14 @@ def create_usertable():
 def get_user_by_username(username):
     conn = get_db_connection()
     cursor = conn.cursor()
-    conn.execute(f'''
-                    SELECT id, username, password
-                    FROM users 
-                    WHERE username = {username}
-
-                    ''')
+    cursor.execute('''
+                        SELECT id, username, password
+                        FROM users 
+                        WHERE username = ? ''', (username,))
     user = cursor.fetchone()
     conn.close()
     return user
+
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()

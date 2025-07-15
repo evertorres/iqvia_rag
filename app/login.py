@@ -1,5 +1,6 @@
 import streamlit as st
-from api.db_utils import get_user_by_username, hash_password
+from api_utils import login_user_api
+
 
 def login():
     if "authenticated" not in st.session_state:
@@ -14,8 +15,8 @@ def login():
             login_btn = st.form_submit_button("Login")
 
             if login_btn:
-                user = get_user_by_username(username)
-                if user and user['password'] == hash_password(password):
+                success = login_user_api(username, password)
+                if success:
                     st.session_state["authenticated"] = True
                     st.session_state["username"] = username
                     st.success(f"Welcome, {username}!")
