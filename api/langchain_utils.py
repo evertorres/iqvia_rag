@@ -5,7 +5,7 @@ from langchain.chains import create_history_aware_retriever, create_retrieval_ch
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.documents import Document
 from langchain_community.llms import HuggingFacePipeline
-
+from langchain_core.runnables import RunnableLambda
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import torch
 import os
@@ -21,13 +21,11 @@ output_parser = StrOutputParser()
 
 
 
-# Set up prompts and chains
+# Prompts Para OpenAI
 contextualize_q_system_prompt = (
-    "Given a chat history and the latest user question "
-    "which might reference context in the chat history, "
-    "formulate a standalone question which can be understood "
-    "without the chat history. Do NOT answer the question, "
-    "just reformulate it if needed and otherwise return it as is."
+    "Dado un historial de conversación y la pregunta más reciente del usuario,"
+    "reformula la pregunta para que sea autónoma y se entienda sin necesidad del contexto previo."
+    "NO respondas la pregunta, solo reformúlala si es necesario. De lo contrario, devuélvela tal como está."
 )
 
 contextualize_q_prompt = ChatPromptTemplate.from_messages([
@@ -37,17 +35,28 @@ contextualize_q_prompt = ChatPromptTemplate.from_messages([
 ])
 
 qa_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful AI assistant. Use the following context to answer the user's question."),
-    ("system", "Context: {context}"),
+    ("system", "Eres un asistente de inteligencia artificial útil y preciso. Usa el siguiente contexto para responder la pregunta del usuario."),
+    ("system", "Contexto: {context}"),
     MessagesPlaceholder(variable_name="chat_history"),
     ("human", "{input}")
 ])
 
-qa_prompt_plain = PromptTemplate.from_template(
-    "<|system|>\nYou are a helpful AI assistant.\n"
-    "<|context|>\n{context}\n"
-    "<|user|>\n{input}\n"
-    "<|assistant|>")
+#Construir Prompt plano con historia para local
+def build_plain_prompt_with_history(context: str, question: str, chat_history: list[dict]) -> str:
+    history_str = ""
+    for msg in chat_history:
+        if msg["role"] == "user":
+            history_str += f"<|user|>\n{msg['content']}\n"
+        elif msg["role"] == "assistant":
+            history_str += f"<|assistant|>\n{msg['content']}\n"
+
+    return (
+        f"<|system|>\nEres un asistente útil y preciso. Usa el contexto para responder la pregunta.\n"
+        f"<|context|>\n{context}\n"
+        f"{history_str}"
+        f"<|user|>\n{question}\n"
+        f"<|assistant|>"
+    )
 
 phi_model = None
 
@@ -75,17 +84,26 @@ def load_phi4_llm(model_name="microsoft/Phi-4-mini-instruct"):
     return phi_model 
 
 def get_rag_chain(model="gpt-4o-mini"):
-    
     if model in ["local", "phi4", "phi-4", "microsoft/Phi-4-mini-instruct"]:
         llm = load_phi4_llm()
-        prompt = qa_prompt_plain
+
+        def rag_pipeline(inputs: dict) -> dict:
+            question = inputs["input"]
+            chat_history = inputs.get("chat_history", [])
+            docs: list[Document] = retriever.get_relevant_documents(question)
+            context = "\n".join(doc.page_content for doc in docs)
+            prompt_text = build_plain_prompt_with_history(context, question, chat_history)
+            answer = llm.invoke(prompt_text)
+            return {
+                "answer": answer,
+                "context": [doc.page_content for doc in docs]
+            }
+
+        return RunnableLambda(rag_pipeline)
+
     else:
         llm = ChatOpenAI(model=model, api_key=os.getenv("OPENAI_API_KEY"))
-        prompt = qa_prompt
-
-    
-    history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
-    question_answer_chain = create_stuff_documents_chain(llm, prompt)
-    rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
-
-    return rag_chain
+        history_aware_retriever = create_history_aware_retriever(llm, retriever, contextualize_q_prompt)
+        question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+        rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+        return rag_chain

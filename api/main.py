@@ -53,8 +53,8 @@ def chat(query_input: QueryInput):
                               })
 
     answer = result['answer']
-    documents = result.get('context', [])
-    context_texts = [doc.page_content for doc in documents]
+    context_items = result.get('context', [])
+    context_texts = [doc.page_content if hasattr(doc, 'page_content') else doc for doc in context_items]
     
     insert_application_logs(session_id, query_input.question, answer, query_input.model.value)
     logging.info(f"Session ID: {session_id}, AI Response: {answer}")
