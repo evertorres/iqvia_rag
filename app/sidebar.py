@@ -2,13 +2,37 @@ import streamlit as st
 from api_utils import upload_document, list_documents, delete_document
 
 def display_sidebar():
-    # Sidebar: Model Selection
-    model_options = ["gpt-4o", "gpt-4o-mini"]
-    st.sidebar.selectbox("Select Model", options=model_options, key="model")
+    # Sidebar: Model Type Selection
+    model_type = st.sidebar.radio(
+        "Select the LLM Provider",
+        options=["OpenAI", "Local"],
+        help="Select 'Local' to use Phi-4-mini (Microsoft) locally"
+    )
+    
+    st.session_state["model_type"] = model_type.lower()
+
+    # Sidebar: Model Selection based on type
+    if model_type == "Local":
+        model_options = {"Phi-4 Mini (Microsoft)": "microsoft/Phi-4-mini-instruct"}
+    else:
+        model_options = {
+            "GPT-4o": "gpt-4o",
+            "GPT-4o Mini": "gpt-4o-mini"
+        }
+
+    selected_label = st.sidebar.selectbox(
+        "Select Model",
+        options=list(model_options.keys()),
+        key="model"  # No se sobrescribe en session_state
+    )
+
+    selected_model_id = model_options[selected_label]
+    st.session_state["selected_model_id"] = selected_model_id
+
 
     # Sidebar: Upload Document
     st.sidebar.header("Upload Document")
-    uploaded_file = st.sidebar.file_uploader("Choose a file", type=["pdf", "docx", "xlsx"])
+    uploaded_file = st.sidebar.file_uploader("Choose a file", type=["csv", "xlsx"])
     if uploaded_file is not None:
         if st.sidebar.button("Upload"):
             with st.spinner("Uploading..."):
