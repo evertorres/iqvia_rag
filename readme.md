@@ -85,5 +85,5 @@ Los usuarios Dummy que se crean son:
 ## 🔐 Requisitos del modelo local (Phi-4 Mini)
 
 - RAM: → mínimo 8GB (ideal 16GB)
-- GPU: → NVIDIA con al menos 4GB VRAM (opcional, pero mejora rendimiento)
+- GPU: → NVIDIA con al menos 6GB VRAM (Hice pruebas con 6GB y se queda corto)
 - Dependencias: transformers, torch, accelerate
