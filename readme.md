@@ -24,20 +24,24 @@ Este proyecto implementa un sistema de preguntas y respuestas usando RAG con Lan
 ## 📁 Estructura del proyecto
 ```bash
 .
-├── app/                  # Frontend (Streamlit)
-│   ├── app_front.py
-│   ├── sidebar.py
-│   └── login.py
-├── api/                  # Backend y lógica de negocio
-│   ├── main.py           # Endpoints FastAPI
+├── app/                   # Frontend (Streamlit)
+│   ├── api_utils.py       # Cliente HTTP
+│   ├── app_front.py       # Archivo Principal Frontend
+│   ├── chat_interface.py  # UI de chat
+│   ├── sidebar.py         # UI Barra lateral
+│   └── login.py           # UI de logueo
+├── api/                   # Backend y lógica de negocio
+│   ├── main.py            # Endpoints FastAPI
 │   ├── langchain_utils.py
-│   ├── db_utils.py       # Autenticación y logs
-│   ├── chroma_utils.py   # Vector store
-│   └── api_utils.py      # Cliente HTTP
-├── documents/            # Archivos cargados
-├── embeddings/           # Vector store local
-├── .env                  # Claves y configuración
-├── requirements.txt
+│   ├── db_utils.py        # Autenticación y logs
+│   ├── chroma_utils.py    # Vector store
+│   └── pydantic_models.py # Esquemas de validación
+├── chroma_db/             # Vector store local
+├── app.log                # Log del app
+├── envtemplate.txt        # Para generar el archivo de claves y configuración
+├── .env                   # Claves y configuración
+├── requirements.txt       # Dependiencias equipo windows
+├── requirements_linux.txt # Dependencias para sistemas linux
 └── README.md
 ```
 
@@ -49,6 +53,7 @@ python -m venv venv
 source venv/bin/activate  # o venv\Scripts\activate en Windows
 
 # Instalar dependencias
+# Para Linux Utilizar requirements_linux.txt
 pip install -r requirements.txt
 
 # Variables de entorno
